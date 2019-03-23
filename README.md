@@ -1,5 +1,11 @@
 # release.sh
 
+## Usage
+
+```sh
+bash -c "$(curl -fsSL https://git.io/fjJ8q)"
+```
+
 ## Acknowledgements
 
 `release.sh` is highly inspired (by functionality or implementation) on these
