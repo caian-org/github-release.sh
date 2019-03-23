@@ -13,6 +13,7 @@ log() {
     printf '\n\e[32m=>\e[m %s' "$@"
 }
 
+# Print "done" without new line
 ok() {
     printf '%s' "done!"
 }
@@ -40,8 +41,8 @@ GIT_USER="${GIT_PROJ_INFO[0]}"
 GIT_REPO="${GIT_PROJ_INFO[1]}"
 log "using project \"$GIT_REPO\" (on ${GIT_CONNECTION}) of user \"$GIT_USER\""
 
-# <github.com/@user/@repo/commit/>
-GIT_COMMIT_URL="$(printf "%s/commit/" "$GIT_REMOTE_URL")"
+# <https://github.com/@user/@repo/commit/>
+GIT_COMMIT_URL="$(printf "https://github.com/%s/%s/commit/" "$GIT_USER" "$GIT_REPO")"
 
 # Get the tags in chronological order (oldest to newest)
 GIT_TAGS="$(git tag --sort=committerdate | tail -n 2)"
@@ -105,4 +106,3 @@ END
 ok
 
 echo "$RESPONSE"
-
