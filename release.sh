@@ -4,26 +4,41 @@ set -e
 
 # Output an error message and exit with status code 1
 die() {
-    printf 'n\e[31mERROR:\e[m %s\n' "$@" >&2
+    printf '\n\e[31mERROR:\e[m %s\n' "$@" >&2
     exit 1
 }
 
 # Log something with a fancy green arrow
 log() {
-    printf '\e[32m=>\e[m %s' "$@"
+    printf '\n\e[32m=>\e[m %s' "$@"
+}
+
+ok() {
+    printf '%s' "done!"
 }
 
 
-printf '\e[36m%s\e[m\n\n' "release.sh has started"
+printf '\n\e[36m%s\e[m\n' "release.sh has started"
 
 # Get the remote URL of the git repository
 GIT_REMOTE_URL="$(git remote get-url --all origin | sed 's/\.git//g')"
 
-# Made an array out of the user and repository name
-GIT_PROJ_INFO=( $(echo "$GIT_REMOTE_URL" | awk -F '/' '{print $4; print $5}') )
+# Verify if git is using HTTPS or SSH
+if echo "$GIT_REMOTE_URL" | grep -q "https"
+then
+    GIT_CONNECTION="https"
+    GIT_PROJ_INFO=( $(echo "$GIT_REMOTE_URL" | \
+        awk -F '/' '{print $4; print $5}') )
+else
+    GIT_CONNECTION="ssh"
+    GIT_PROJ_INFO=( $(echo "$GIT_REMOTE_URL" | \
+        awk -F ':' '{print $2}' | \
+        awk -F '/' '{print $1; print $2}') )
+fi
+
 GIT_USER="${GIT_PROJ_INFO[0]}"
 GIT_REPO="${GIT_PROJ_INFO[1]}"
-log "using project \"$GIT_REPO\" of user \"$GIT_USER\"\n"
+log "using project \"$GIT_REPO\" (on ${GIT_CONNECTION}) of user \"$GIT_USER\""
 
 # <github.com/@user/@repo/commit/>
 GIT_COMMIT_URL="$(printf "%s/commit/" "$GIT_REMOTE_URL")"
@@ -65,7 +80,7 @@ log "generating changelog from \"$PENULT_REF\" to \"$LAST_REF\"... "
 # Get the changelog content
 CHANGELOG="$(cat /tmp/rcl)"
 rm /tmp/rcl
-echo "done!"
+ok
 
 # Make a POST request to GitHub's release API
 log "creating release... "
@@ -87,6 +102,7 @@ RESPONSE="$(
          }
 END
 )"
-echo "done!"
+ok
 
 echo "$RESPONSE"
+
