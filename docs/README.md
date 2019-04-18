@@ -1,4 +1,4 @@
-# `release.sh`
+# `release.py`
 
 <img src="docs/logo.svg" height="210px" align="right"/>
 
@@ -6,18 +6,18 @@ A KISS solution to easily create
 
 [![Build Status][travis-shield]][travis-url]
 
-- __Lorem.__ Ipsum.
-- __Sit.__ Dolor.
+- __Fast.__ Ipsum.
+- __Minimal.__ Dolor.
 - __Amet.__ Consectetur.
 
-[travis-shield]: https://img.shields.io/travis/caian-org/github-release.sh.svg?style=for-the-badge
-[travis-url]: https://travis-ci.org/caian-org/github-release.sh
+[travis-shield]: https://img.shields.io/travis/caian-org/github-release.py.svg?style=for-the-badge
+[travis-url]: https://travis-ci.org/caian-org/github-release.py
 
 
 ## Usage
 
 ```sh
-bash -c "$(curl -fsSL https://git.io/fjJ8q)"
+curl -fsSL https://raw.githubusercontent.com/caian-org/release.py/master/release.py | python
 ```
 
 
@@ -35,7 +35,7 @@ copyright and related or neighboring rights to this work.
 
 ## Acknowledgements
 
-`release.sh` is highly inspired (by functionality or implementation) on these
+`release.py` is highly inspired (by functionality or implementation) on these
 projects/scripts:
 
 - [`upload-github-release-asset.sh`][ugra] by [Stefan Buck][stefan]
