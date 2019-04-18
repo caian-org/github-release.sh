@@ -17,7 +17,7 @@ A KISS solution to easily create
 ## Usage
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/caian-org/release.py/master/release.py | python
+curl -fsSL https://git.io/fjYha | python
 ```
 
 
