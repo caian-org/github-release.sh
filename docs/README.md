@@ -6,8 +6,6 @@ A KISS solution to easily create
 
 [![Build Status][travis-shield]][travis-url] [![Code Coverage][codecov-shield]][codecov-url] [![Code Quality][lgtm-shield]][lgtm-url]
 
-https://img.shields.io/codecov/c/github/caian-org/release.py.svg?style=for-the-badge
-
 - __Fast.__ Ipsum.
 - __Minimal.__ Dolor.
 - __Amet.__ Consectetur.
