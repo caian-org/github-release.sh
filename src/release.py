@@ -21,7 +21,6 @@
 import sys
 from subprocess import Popen
 from subprocess import PIPE
-from subprocess import DEVNULL
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from urllib.request import Request
@@ -38,15 +37,15 @@ def info(msg):
 
 def exec(c):
     try:
-        proc = Popen(c, stdout=PIPE, stderr=DEVNULL)
+        proc = Popen(c, stdout=PIPE, stderr=PIPE)
     except Exception:
-        return None
+        return True, None
 
     out, err = proc.communicate()
     if err:
-        return None
+        return True, None
 
-    return out.decode('utf-8').rstrip()
+    return None, out.decode('utf-8').rstrip()
 
 
 def git_remote():
@@ -158,13 +157,11 @@ def main():
     print('\n\033[36m{}\033[0m\n'.format('release.py has started'))
 
     # --------------------------------------------------
-    remote = git_remote()
-
-    if not remote:
+    err, remote = git_remote()
+    if err:
         die('unable to get the remote URL')
 
     err, data = get_remote_data(remote)
-
     if err:
         die(data)
 
@@ -176,11 +173,11 @@ def main():
     ))
 
     # --------------------------------------------------
-    tags = git_tag().split('\n')
-    tags.pop()
-
-    if not tags:
+    err, tags = git_tag()
+    if err:
         die('no tags found')
+
+    tags = tags.split('\n')
 
     # --------------------------------------------------
     last_ref, penult_ref = tags[-1], ''
@@ -200,8 +197,11 @@ def main():
         penult_ref, last_ref
     ))
 
-    logs = git_log(penult_ref, last_ref).split('\n')
-    logs.pop()
+    err, logs = git_log(penult_ref, last_ref)
+    if err:
+        die('unable to get logs')
+
+    logs = logs.split('\n')
 
     changelog = generate_changelog(logs, data['commit_url'])
 
