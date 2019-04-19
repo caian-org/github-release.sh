@@ -4,7 +4,9 @@
 
 A KISS solution to easily create
 
-[![Build Status][travis-shield]][travis-url] [![Code Quality][lgtm-shield]][lgtm-url]
+[![Build Status][travis-shield]][travis-url] [![Code Coverage][codecov-shield]][codecov-url] [![Code Quality][lgtm-shield]][lgtm-url]
+
+https://img.shields.io/codecov/c/github/caian-org/release.py.svg?style=for-the-badge
 
 - __Fast.__ Ipsum.
 - __Minimal.__ Dolor.
@@ -12,6 +14,9 @@ A KISS solution to easily create
 
 [travis-shield]: https://img.shields.io/travis/caian-org/release.py.svg?style=for-the-badge
 [travis-url]: https://travis-ci.org/caian-org/release.py
+
+[codecov-shield]: https://img.shields.io/codecov/c/github/caian-org/release.py.svg?style=for-the-badge
+[codecov-url]: https://codecov.io/gh/caian-org/release.py
 
 [lgtm-shield]: https://img.shields.io/lgtm/grade/python/g/caian-org/release.py.svg?style=for-the-badge
 [lgtm-url]: https://lgtm.com/projects/g/caian-org/release.py/context:python
