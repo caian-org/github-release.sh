@@ -9,5 +9,11 @@ python:
   - "3.7"
   - "3.8-dev"
 
+install:
+  - pip3 install codecov --upgrade
+
 script:
-  - make test
+  - coverage run tests/test_release.py
+
+after_success:
+  - codecov
