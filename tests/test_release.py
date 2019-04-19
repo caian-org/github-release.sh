@@ -46,19 +46,29 @@ class ReleasePyTests(unittest.TestCase):
             generate_changelog(logs, url), html)
 
     def test_exec_nonexistent(self):
-        self.assertIsNone(exec(['non-existing-cmd']))
+        err, res = exec(['non-existent-cmd'])
 
-    def test_exec_command_right(self):
-        self.assertIsNotNone(exec(['pwd']))
+        self.assertTrue(err)
 
     def test_exec_command_wrong(self):
-        self.assertIsNotNone(exec(['git', 'stat']))
+        err, res = exec(['git', 'stat'])
+
+        self.assertTrue(err)
+
+    def test_exec_command_right(self):
+        err, res = exec(['pwd'])
+
+        self.assertIsNotNone(res)
 
     def test_git_tag(self):
-        self.assertIsNotNone(git_tag())
+        err, res = git_tag()
+
+        self.assertIsNotNone(res)
 
     def test_git_remote(self):
-        self.assertIn('caian-org/release.py', git_remote())
+        err, res = git_remote()
+
+        self.assertIn('caian-org/release.py', res)
 
     def test_provider_github(self):
         self.assertEqual(
@@ -93,6 +103,11 @@ class ReleasePyTests(unittest.TestCase):
             data['commit_url'] == 'https://github.com/caian-org/release.py/commit'
 
         self.assertTrue(x)
+
+    def test_remote_unsupported(self):
+        err, data = get_remote_data('git@bitbycket.org:caian/project.git')
+
+        self.assertTrue(err)
 
 
 if __name__ == '__main__':
