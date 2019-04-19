@@ -37,20 +37,23 @@ def info(msg):
 
 
 def exec(c):
-    proc = Popen(c, stdout=PIPE, stderr=DEVNULL)
+    try:
+        proc = Popen(c, stdout=PIPE, stderr=DEVNULL)
+    except Exception:
+        return None
 
     out, err = proc.communicate()
     if err:
         return None
 
-    return out.decode('utf-8')
+    return out.decode('utf-8').rstrip()
 
 
 def git_remote():
     return exec(['git', 'remote', 'get-url', '--all', 'origin'])
 
 
-def git_tags():
+def git_tag():
     return exec(['git', 'tag', '--sort=committerdate'])
 
 
@@ -87,13 +90,14 @@ def generate_changelog(logs, commit_url):
 def get_remote_data(remote):
     # --------------------------------------------------
     protocol = 'https'
+
     if 'https://' not in remote:
         protocol = 'ssh'
 
     # --------------------------------------------------
     commit_url, provider, aux = '', '', ''
 
-    if remote == 'https':
+    if protocol == 'https':
         aux = remote.split('/')
         provider = identify_provider(aux[2])
 
@@ -107,13 +111,13 @@ def get_remote_data(remote):
     # --------------------------------------------------
     auz = remote.split('{}.com'.format(provider))
     auz = auz[1][1:]
-    auz = auz[:len(auz) - 5]
+    auz = auz[:len(auz) - 4]
     commit_url = 'https://{0}.com/{1}/commit'.format(provider, auz)
 
     # --------------------------------------------------
     user, repo = '', ''
 
-    if remote == 'https':
+    if protocol == 'https':
         user = aux[3]
         repo = aux[-1]
     else:
@@ -121,7 +125,7 @@ def get_remote_data(remote):
         user = aux[0]
         repo = aux[-1]
 
-    repo = repo.split('.')[0]
+    repo = repo[:len(repo) - 4]
 
     return None, {
         'commit_url': commit_url,
@@ -172,7 +176,7 @@ def main():
     ))
 
     # --------------------------------------------------
-    tags = git_tags().split('\n')
+    tags = git_tag().split('\n')
     tags.pop()
 
     if not tags:
