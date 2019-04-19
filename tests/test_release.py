@@ -32,9 +32,19 @@ from release import git_tag
 from release import git_remote
 from release import get_remote_data
 from release import identify_provider
+from release import generate_changelog
 
 
 class ReleasePyTests(unittest.TestCase):
+    def test_changelog_generation(self):
+        logs = ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation']
+        url  = 'https://github.com/caian-org/release.py/commit'
+
+        html = '<h1>Changelog</h1><ul><li><a href="https://github.com/caian-org/release.py/commit/16a571c2c43316e332e38b5abcc49490945ec955"><code>16a571c</code></a> feat: initial implementation</li></ul>'
+
+        self.assertEqual(
+            generate_changelog(logs, url), html)
+
     def test_exec_nonexistent(self):
         self.assertIsNone(exec(['non-existing-cmd']))
 
