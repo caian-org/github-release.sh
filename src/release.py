@@ -63,9 +63,9 @@ def git_log(penult, last):
 
 
 def identify_provider(prefix):
-    if 'github.com' in prefix:
+    if 'github.com' == prefix:
         return 'github'
-    elif 'gitlab.com' in prefix:
+    elif 'gitlab.com' == prefix:
         return 'gitlab'
     else:
         return None
@@ -102,7 +102,8 @@ def get_remote_data(remote):
 
     else:
         aux = remote.split(':')
-        provider = identify_provider(aux[0])
+        provider = aux[0].split('@')[1]
+        provider = identify_provider(provider)
 
     if not provider:
         return True, 'unsupported provider'
