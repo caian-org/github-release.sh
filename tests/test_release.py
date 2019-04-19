@@ -35,11 +35,14 @@ from release import identify_provider
 
 
 class ReleasePyTests(unittest.TestCase):
-    def test_exec_error(self):
+    def test_exec_nonexistent(self):
         self.assertIsNone(exec(['non-existing-cmd']))
 
-    def test_exec_okay(self):
+    def test_exec_command_right(self):
         self.assertIsNotNone(exec(['pwd']))
+
+    def test_exec_command_wrong(self):
+        self.assertIsNotNone(exec(['git', 'stat']))
 
     def test_git_tag(self):
         self.assertIsNotNone(git_tag())
@@ -55,7 +58,7 @@ class ReleasePyTests(unittest.TestCase):
         self.assertEqual(
             identify_provider('https://gitlab.com/caian.ertl'), 'gitlab')
 
-    def test_unsupported_provider(self):
+    def test_provider_unsupported(self):
         self.assertIsNone(
             identify_provider('https://bitbucket.org'))
 
