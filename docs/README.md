@@ -21,31 +21,78 @@ A KISS solution to easily create project releases.
 [lgtm-url]: https://lgtm.com/projects/g/caian-org/release.py/context:python
 
 
-## About
+## Table of Contents
 
-`release.py` is a tool that generates releases on GitHub and GitLab (WIP). It
+- [How It Works?](#how-it-works)
+- [Requirements](#requirements)
+- [Usage](#usage)
+    - [Attaching Artifacts](#attaching-artifacts)
+
+
+## How It Works?
+
+`release.py` is a tool that __generates releases on GitHub and GitLab__ (WIP). It
 should be used in the context of a CI/CD pipeline, at the delivery stage. The
 pipeline should be declared in a way that, when a new tag is pushed,
 `release.py` is executed after the tests passed, so a new release is
 automatically created with the changelog since the last tag.
 
-The tool lists all the tags for the project and compare the changes from the
-last tag to the current one. It then formats the log to an HTML changelog and
-posts to the GitHub/GitLab API. The username, repository name, connection
-protocol (HTTPS or SSH) and provider (GitHub or Gitlab) detection is based upon
-the remote URL. Via CLI, one or more artifacts can be uploaded. A release
-message can also be defined -- though completely optional.
+An example of a Travis-CI pipeline using stages and `release.py`:
 
-The API authentication to either GitHub ou GitLab is made by tokens. The token
-should be generated for you account and exposed inside the pipeline via the
-`RELEASEPY_AUTH_TOKEN` environment variable.
+```yml
+sudo: required
+language: node_js
+
+stages:
+  - test
+  - release
+
+jobs:
+  include:
+    - stage: test
+      name: "Unit tests"
+      install:
+        - npm install
+      script:
+        - npm test
+
+    - stage: release
+      name: "Create new release"
+      script:
+        - curl -fsSL https://git.io/fjOZZ | python3
+      if: tag IS present
+```
+
+The tool lists all the tags for the project and compare the changes from the
+last tag to the current one -- If no last tag is detected, it will use the
+master branch as the last reference. It then formats the log to an HTML
+changelog and posts to the GitHub/GitLab API. The username, repository name,
+connection protocol (HTTPS or SSH) and provider (GitHub or Gitlab) detection is
+based upon the remote URL of the repository.
+
+Via CLI, one or more artifacts can be attached to the release. A release
+message can also be defined (optionally). The API authentication to either
+GitHub or GitLab is made by tokens. The token should be generated for you
+account and exposed inside the pipeline via the `RELEASEPY_AUTH_TOKEN`
+environment variable.
+
+
+## Requirements
+
+`release.py` only requires Python 3 (versions `3.4`, `3.5`, `3.6`, `3.7` and
+`3.8`).
 
 
 ## Usage
 
 ```sh
-curl -fsSL https://git.io/fjOZZ | python
+curl -fsSL https://git.io/fjOZZ | python3
 ```
+
+
+## Attaching Artifacts
+
+*TODO*
 
 
 ## License
