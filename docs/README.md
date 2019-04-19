@@ -23,7 +23,7 @@ A KISS solution to easily create
 ## Usage
 
 ```sh
-curl -fsSL https://git.io/fjYha | python
+curl -fsSL https://git.io/fjOZZ | python
 ```
 
 
