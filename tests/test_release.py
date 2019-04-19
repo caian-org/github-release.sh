@@ -72,15 +72,15 @@ class ReleasePyTests(unittest.TestCase):
 
     def test_provider_github(self):
         self.assertEqual(
-            identify_provider('https://github.com/caiertl'), 'github')
+            identify_provider('github.com'), 'github')
 
     def test_provider_gitlab(self):
         self.assertEqual(
-            identify_provider('https://gitlab.com/caian.ertl'), 'gitlab')
+            identify_provider('gitlab.com'), 'gitlab')
 
     def test_provider_unsupported(self):
         self.assertIsNone(
-            identify_provider('https://bitbucket.org'))
+            identify_provider('bitbucket.org'))
 
     def test_remote_https(self):
         err, data = get_remote_data('https://gitlab.com/caian.ertl/project.git')
