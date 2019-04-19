@@ -27,6 +27,8 @@ A KISS solution to easily create project releases.
 - [Requirements](#requirements)
 - [Usage](#usage)
     - [Attaching Artifacts](#attaching-artifacts)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 
 ## How It Works?
