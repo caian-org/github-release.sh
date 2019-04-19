@@ -2,13 +2,14 @@
 
 <img src="docs/logo.svg" height="210px" align="right"/>
 
-A KISS solution to easily create
+A KISS solution to easily create project releases.
 
 [![Build Status][travis-shield]][travis-url] [![Code Coverage][codecov-shield]][codecov-url] [![Code Quality][lgtm-shield]][lgtm-url]
 
-- __Fast.__ Ipsum.
-- __Minimal.__ Dolor.
-- __Amet.__ Consectetur.
+- __Minimal.__ No 3rd-party dependency is necessary, only Python 3.x.
+- __Simple.__ All required parameters are automagically detected.
+- __Language agnostic.__ Create releases for projects written in any language.
+- __CI/CD ready.__ Easily integratable in CI/CD pipelines.
 
 [travis-shield]: https://img.shields.io/travis/caian-org/release.py.svg?style=for-the-badge
 [travis-url]: https://travis-ci.org/caian-org/release.py
@@ -18,6 +19,26 @@ A KISS solution to easily create
 
 [lgtm-shield]: https://img.shields.io/lgtm/grade/python/g/caian-org/release.py.svg?style=for-the-badge
 [lgtm-url]: https://lgtm.com/projects/g/caian-org/release.py/context:python
+
+
+## About
+
+`release.py` is a tool that generates releases on GitHub and GitLab (WIP). It
+should be used in the context of a CI/CD pipeline, at the delivery stage. The
+pipeline should be declared in a way that, when a new tag is pushed,
+`release.py` is executed after the tests passed, so a new release is
+automatically created with the changelog since the last tag.
+
+The tool lists all the tags for the project and compare the changes from the
+last tag to the current one. It then formats the log to an HTML changelog and
+posts to the GitHub/GitLab API. The username, repository name, connection
+protocol (HTTPS or SSH) and provider (GitHub or Gitlab) detection is based upon
+the remote URL. Via CLI, one or more artifacts can be uploaded. A release
+message can also be defined -- though completely optional.
+
+The API authentication to either GitHub ou GitLab is made by tokens. The token
+should be generated for you account and exposed inside the pipeline via the
+`RELEASEPY_AUTH_TOKEN` environment variable.
 
 
 ## Usage
