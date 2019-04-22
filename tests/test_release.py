@@ -37,13 +37,15 @@ from release import generate_changelog
 
 class ReleasePyTests(unittest.TestCase):
     def test_changelog_generation(self):
-        logs = ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation']
-        url  = 'https://github.com/caian-org/release.py/commit'
+        data = {
+            'logs': ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation'],
+            'url':  'https://github.com/caian-org/release.py/commit'
+        }
 
         html = '<h1>Changelog</h1><ul><li><a href="https://github.com/caian-org/release.py/commit/16a571c2c43316e332e38b5abcc49490945ec955"><code>16a571c</code></a> feat: initial implementation</li></ul>'
 
         self.assertEqual(
-            generate_changelog(logs, url), html)
+            generate_changelog(data), html)
 
     def test_exec_nonexistent(self):
         err, res = exec(['non-existent-cmd'])
