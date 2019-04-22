@@ -19,11 +19,13 @@
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
 import sys
+import json
+import base64
+from os import environ
 from subprocess import Popen
 from subprocess import PIPE
-from urllib.parse import urlencode
-from urllib.request import urlopen
 from urllib.request import Request
+from urllib.request import urlopen
 
 
 def die(msg):
@@ -71,16 +73,16 @@ def identify_provider(prefix):
         return None
 
 
-def generate_changelog(logs, commit_url):
+def generate_changelog(data):
     changelog = ''
 
-    for L in logs:
-        sha = L[:40]
-        msg = L[41:]
+    for _ in data['logs']:
+        sha = _[:40]
+        msg = _[41:]
 
         changelog += \
             '<li><a href="{0}/{1}"><code>{2}</code></a> {3}</li>'.format(
-                commit_url, sha, sha[:7], msg
+                data['url'], sha, sha[:7], msg
             )
 
     return '<h1>Changelog</h1><ul>{0}</ul>'.format(changelog)
@@ -99,7 +101,6 @@ def get_remote_data(remote):
     if protocol == 'https':
         aux = remote.split('/')
         provider = identify_provider(aux[2])
-
     else:
         aux = remote.split(':')
         provider = aux[0].split('@')[1]
@@ -136,26 +137,46 @@ def get_remote_data(remote):
     }
 
 
-def create_release(data, changelog):
+def create_release(release):
     url = 'https://api.github.com/repos/{0}/{1}/releases'.format(
-        data['user'], data['repo']
+        release['git']['user'], release['git']['repo']
     )
 
     payload = {
         'target_commitish': 'master',
-        'tag_name':   data['tags']['last'],
-        'name':       data['tags']['last'],
-        'body':       changelog,
+        'tag_name':   release['git']['tags']['last'],
+        'name':       release['git']['tags']['last'],
+        'body':       release['changelog'],
         'draft':      False,
         'prerelease': False,
     }
 
-    req = Request(url, urlencode(payload).encode())
-    return urlopen(req).read().decode()
+    payload = json.dumps(payload).encode('utf-8')
+
+    auth = '{}:{}'.format(release['git']['user'], release['token'])
+    auth = base64.b64encode(auth.encode('utf-8'))
+
+    req = Request(url, data=payload)
+    req.add_header('Content-Type', 'application/json')
+    req.add_header('Authorization', 'Basic {}'.format(auth.decode('ascii')))
+
+    res = None
+    try:
+        res = urlopen(req).read().decode()
+
+    except Exception as e:
+        return e.code, None
+
+    return None, res
 
 
 def main():
     print('\n\033[36m{}\033[0m\n'.format('release.py has started'))
+
+    # --------------------------------------------------
+    token = environ.get('RELEASE_AUTH_TOKEN')
+    if not token:
+        die('token is undefined')
 
     # --------------------------------------------------
     err, remote = git_remote()
@@ -203,11 +224,23 @@ def main():
         die('unable to get logs')
 
     logs = logs.split('\n')
+    changelog = generate_changelog({
+        'logs': logs,
+        'url': data['commit_url'],
+    })
 
-    changelog = generate_changelog(logs, data['commit_url'])
-
+    # --------------------------------------------------
     info('creating release...')
-    res = create_release(data, changelog)
+    err, res = create_release({
+        'git': data,
+        'changelog': changelog,
+        'token': token,
+    })
+
+    if err:
+        die('release creation failed with HTTP code "{}"'.format(res))
+
+    print(res)
 
 
 if __name__ == '__main__':
