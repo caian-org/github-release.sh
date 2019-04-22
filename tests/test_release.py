@@ -95,6 +95,17 @@ class ReleasePyTests(unittest.TestCase):
 
         self.assertTrue(x)
 
+    def test_remote_https_with_namespace(self):
+        err, data = get_remote_data('https://gitlab.com/caian-org/internal/sample-apps/ruby/sinatra.git')
+
+        x = data['protocol'] == 'https' and \
+            data['provider'] == 'gitlab' and \
+            data['user'] == 'caian-org' and \
+            data['repo'] == 'sinatra' and \
+            data['commit_url'] == 'https://gitlab.com/caian-org/internal/sample-apps/ruby/sinatra/commit'
+
+        self.assertTrue(x)
+
     def test_remote_ssh(self):
         err, data = get_remote_data('git@github.com:caian-org/release.py.git')
 
@@ -103,6 +114,17 @@ class ReleasePyTests(unittest.TestCase):
             data['user'] == 'caian-org' and \
             data['repo'] == 'release.py' and \
             data['commit_url'] == 'https://github.com/caian-org/release.py/commit'
+
+        self.assertTrue(x)
+
+    def test_remote_ssh_with_namespace(self):
+        err, data = get_remote_data('git@gitlab.com:caian.ertl/internal/sample-apps/ruby/sinatra.git')
+
+        x = data['protocol'] == 'ssh' and \
+            data['provider'] == 'gitlab' and \
+            data['user'] == 'caian.ertl' and \
+            data['repo'] == 'sinatra' and \
+            data['commit_url'] == 'https://gitlab.com/caian.ertl/internal/sample-apps/ruby/sinatra/commit'
 
         self.assertTrue(x)
 
