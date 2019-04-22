@@ -13,7 +13,7 @@ install:
   - pip3 install codecov --upgrade
 
 script:
-  - coverage run tests/test_release.py
+  - coverage run make suite=basic
 
 after_success:
   - codecov
