@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	./tests/test_release.py -v
+	./tests/test_$(suite).py -v
