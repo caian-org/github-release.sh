@@ -18,14 +18,8 @@
 # For more information, please see
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
-import sys
+import helper
 import unittest
-from os.path import dirname
-from os.path import abspath
-
-sys.path.append(
-    '{}/src'.format(dirname(dirname(abspath(__file__))))
-)
 
 from release import exec
 from release import git_tag
@@ -35,7 +29,7 @@ from release import identify_provider
 from release import generate_changelog
 
 
-class ReleasePyTests(unittest.TestCase):
+class BasicTests(unittest.TestCase):
     def test_changelog_generation(self):
         data = {
             'logs': ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation'],
