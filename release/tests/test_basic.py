@@ -18,125 +18,82 @@
 # For more information, please see
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
-import helper
-import unittest
-
-from release import exec
-from release import git_tag
-from release import git_remote
-from release import get_remote_data
-from release import identify_provider
-from release import generate_changelog
+from release.release import do_cmd
+from release.release import git_tag
+from release.release import git_remote
+from release.release import get_remote_data
+from release.release import identify_provider
+from release.release import generate_changelog
 
 
-class BasicTests(unittest.TestCase):
-    def test_changelog_generation(self):
-        data = {
-            'logs': ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation'],
-            'url': 'https://github.com/caian-org/release.py/commit',
-        }
+def test_changelog_generation():
+    data = {
+        'logs': ['16a571c2c43316e332e38b5abcc49490945ec955 feat: initial implementation'],
+        'url': 'https://github.com/caian-org/release.py/commit',
+    }
 
-        html = '<h1>Changelog</h1><ul><li><a href="https://github.com/caian-org/release.py/commit/16a571c2c43316e332e38b5abcc49490945ec955"><code>16a571c</code></a> feat: initial implementation</li></ul>'
+    html = '<h1>Changelog</h1><ul><li><a href="https://github.com/caian-org/release.py/commit/16a571c2c43316e332e38b5abcc49490945ec955"><code>16a571c</code></a> feat: initial implementation</li></ul>'
 
-        self.assertEqual(generate_changelog(data), html)
+    assert generate_changelog(data) == html
 
-    def test_exec_nonexistent(self):
-        err, res = exec(['non-existent-cmd'])
+def test_exec_nonexistent():
+    err, res = do_cmd(['non-existent-cmd'])
 
-        self.assertTrue(err)
+    assert err
 
-    def test_exec_command_wrong(self):
-        err, res = exec(['git', 'stat'])
+def test_exec_command_wrong():
+    err, res = do_cmd(['git', 'stat'])
 
-        self.assertTrue(err)
+    assert err
 
-    def test_exec_command_right(self):
-        err, res = exec(['pwd'])
+def test_exec_command_right():
+    err, res = do_cmd(['pwd'])
 
-        self.assertIsNotNone(res)
+    assert res is not None
 
-    def test_git_tag(self):
-        err, res = git_tag()
+def test_git_tag():
+    err, res = git_tag()
 
-        self.assertIsNotNone(res)
+    assert res is not None
 
-    def test_git_remote(self):
-        err, res = git_remote()
+def test_git_remote():
+    err, res = git_remote()
 
-        self.assertIn('caian-org/release.py', res)
+    assert 'caian-org/release.py' in res
 
-    def test_provider_github(self):
-        self.assertEqual(identify_provider('github.com'), 'github')
+def test_provider_github():
+    assert identify_provider('github.com') == 'github'
 
-    def test_provider_gitlab(self):
-        self.assertEqual(identify_provider('gitlab.com'), 'gitlab')
+def test_provider_unsupported():
+    assert identify_provider('bitbucket.org') is None
 
-    def test_provider_unsupported(self):
-        self.assertIsNone(identify_provider('bitbucket.org'))
+def test_remote_https():
+    err, data = get_remote_data('https://github.com/caian.ertl/project.git')
 
-    def test_remote_https(self):
-        err, data = get_remote_data('https://gitlab.com/caian.ertl/project.git')
+    x = (
+        data['protocol'] == 'https'
+        and data['provider'] == 'github'
+        and data['user'] == 'caian.ertl'
+        and data['repo'] == 'project'
+        and data['commit_url'] == 'https://github.com/caian.ertl/project/commit'
+    )
 
-        x = (
-            data['protocol'] == 'https'
-            and data['provider'] == 'gitlab'
-            and data['user'] == 'caian.ertl'
-            and data['repo'] == 'project'
-            and data['commit_url'] == 'https://gitlab.com/caian.ertl/project/commit'
-        )
+    assert x
 
-        self.assertTrue(x)
+def test_remote_ssh():
+    err, data = get_remote_data('git@github.com:caian-org/release.py.git')
 
-    def test_remote_https_with_namespace(self):
-        err, data = get_remote_data(
-            'https://gitlab.com/caian-org/internal/sample-apps/ruby/sinatra.git'
-        )
+    x = (
+        data['protocol'] == 'ssh'
+        and data['provider'] == 'github'
+        and data['user'] == 'caian-org'
+        and data['repo'] == 'release.py'
+        and data['commit_url'] == 'https://github.com/caian-org/release.py/commit'
+    )
 
-        x = (
-            data['protocol'] == 'https'
-            and data['provider'] == 'gitlab'
-            and data['user'] == 'caian-org'
-            and data['repo'] == 'sinatra'
-            and data['commit_url']
-            == 'https://gitlab.com/caian-org/internal/sample-apps/ruby/sinatra/commit'
-        )
+    assert x
 
-        self.assertTrue(x)
+def test_remote_unsupported():
+    err, data = get_remote_data('git@bitbycket.org:caian/project.git')
 
-    def test_remote_ssh(self):
-        err, data = get_remote_data('git@github.com:caian-org/release.py.git')
-
-        x = (
-            data['protocol'] == 'ssh'
-            and data['provider'] == 'github'
-            and data['user'] == 'caian-org'
-            and data['repo'] == 'release.py'
-            and data['commit_url'] == 'https://github.com/caian-org/release.py/commit'
-        )
-
-        self.assertTrue(x)
-
-    def test_remote_ssh_with_namespace(self):
-        err, data = get_remote_data(
-            'git@gitlab.com:caian.ertl/internal/sample-apps/ruby/sinatra.git'
-        )
-
-        x = (
-            data['protocol'] == 'ssh'
-            and data['provider'] == 'gitlab'
-            and data['user'] == 'caian.ertl'
-            and data['repo'] == 'sinatra'
-            and data['commit_url']
-            == 'https://gitlab.com/caian.ertl/internal/sample-apps/ruby/sinatra/commit'
-        )
-
-        self.assertTrue(x)
-
-    def test_remote_unsupported(self):
-        err, data = get_remote_data('git@bitbycket.org:caian/project.git')
-
-        self.assertTrue(err)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    assert err
