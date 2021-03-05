@@ -19,5 +19,12 @@ pytest-xdist = "*"
 [requires]
 python_version = "3.9"
 
+[scripts]
+"fix:style" = "black -l 100 -S release"
+"check:lint" = "pylint --fail-under 9 --rcfile .pylintrc --output-format colorized --verbose release"
+"check:types" = "mypy release"
+"check:style" = "black -l 100 -S --check release"
+"tests" = "pytest --cov release --cov-report term --cov-report html --verbose"
+
 [pipenv]
 allow_prereleases = true

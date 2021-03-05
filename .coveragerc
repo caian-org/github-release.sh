@@ -1,0 +1,11 @@
+[run]
+omit = release/tests
+
+[report]
+precision = 2
+
+[html]
+directory = htmlcov
+show_contexts = True
+skip_empty = True
+title = release.py - Coverage Report
