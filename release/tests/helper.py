@@ -20,6 +20,4 @@ import sys
 from os.path import dirname
 from os.path import abspath
 
-sys.path.append(
-    '{}/src'.format(dirname(dirname(abspath(__file__))))
-)
+sys.path.append('{}/src'.format(dirname(dirname(abspath(__file__)))))

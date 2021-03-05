@@ -64,9 +64,7 @@ def git_tag():
 
 
 def git_log(tags):
-    return exec(['git', 'log', '--pretty=oneline', '{0}..{1}'.format(
-        tags['penult'], tags['last']
-    )])
+    return exec(['git', 'log', '--pretty=oneline', '{0}..{1}'.format(tags['penult'], tags['last'])])
 
 
 def identify_provider(prefix):
@@ -85,10 +83,9 @@ def generate_changelog(data):
         sha = _[:40]
         msg = _[41:]
 
-        changelog += \
-            '<li><a href="{0}/{1}"><code>{2}</code></a> {3}</li>'.format(
-                data['url'], sha, sha[:7], msg
-            )
+        changelog += '<li><a href="{0}/{1}"><code>{2}</code></a> {3}</li>'.format(
+            data['url'], sha, sha[:7], msg
+        )
 
     return '<h1>Changelog</h1><ul>{0}</ul>'.format(changelog)
 
@@ -117,7 +114,7 @@ def get_remote_data(remote):
     # --------------------------------------------------
     auz = remote.split('{}.com'.format(provider))
     auz = auz[1][1:]
-    auz = auz[:len(auz) - 4]
+    auz = auz[: len(auz) - 4]
     commit_url = 'https://{0}.com/{1}/commit'.format(provider, auz)
 
     # --------------------------------------------------
@@ -131,7 +128,7 @@ def get_remote_data(remote):
         user = aux[0]
         repo = aux[-1]
 
-    repo = repo[:len(repo) - 4]
+    repo = repo[: len(repo) - 4]
 
     return None, {
         'commit_url': commit_url,
@@ -178,10 +175,10 @@ def create_github_release(data):
     # --------------------------------------------------
     payload = {
         'target_commitish': 'master',
-        'tag_name':   data['git']['tags']['last'],
-        'name':       data['git']['tags']['last'],
-        'body':       data['changelog'],
-        'draft':      False,
+        'tag_name': data['git']['tags']['last'],
+        'name': data['git']['tags']['last'],
+        'body': data['changelog'],
+        'draft': False,
         'prerelease': False,
     }
 
@@ -191,11 +188,7 @@ def create_github_release(data):
     auth = 'Basic {}'.format(auth.decode('ascii'))
 
     # --------------------------------------------------
-    return post_request_with_auth({
-        'url': url,
-        'payload': payload,
-        'auth': ('Authorization', auth)
-    })
+    return post_request_with_auth({'url': url, 'payload': payload, 'auth': ('Authorization', auth)})
 
 
 def create_gitlab_release(data):
@@ -204,11 +197,11 @@ def create_gitlab_release(data):
         toplevel_domain = 'http://localhost:8080'
 
     # --------------------------------------------------
-    proj_path = data['git']['commit_url'].split('https://{}.com/'.format(
-        data['git']['provider']
-    ))[1]
+    proj_path = data['git']['commit_url'].split('https://{}.com/'.format(data['git']['provider']))[
+        1
+    ]
 
-    proj_path = proj_path[:len(proj_path) - 7]
+    proj_path = proj_path[: len(proj_path) - 7]
     proj_path = quote_plus(proj_path)
 
     url = '{}/api/v4/projects/{}/releases'.format(toplevel_domain, proj_path)
@@ -217,11 +210,9 @@ def create_gitlab_release(data):
     payload = ''
 
     # --------------------------------------------------
-    return post_request_with_auth({
-        'url': url,
-        'pauload': payload,
-        'auth': ('PRIVATE-TOKEN', data['token'])
-    })
+    return post_request_with_auth(
+        {'url': url, 'pauload': payload, 'auth': ('PRIVATE-TOKEN', data['token'])}
+    )
 
 
 def create_release(data):
@@ -252,11 +243,11 @@ def main():
         die(data)
 
     info('detected provider: {}'.format(data['provider']))
-    info('performing on project "{0}" (on {1}) of user "{2}"'.format(
-        data['repo'],
-        data['protocol'],
-        data['user']
-    ))
+    info(
+        'performing on project "{0}" (on {1}) of user "{2}"'.format(
+            data['repo'], data['protocol'], data['user']
+        )
+    )
 
     # --------------------------------------------------
     err, tags = git_tag()
@@ -275,27 +266,33 @@ def main():
         data['tags']['penult'] = tags[-2]
 
     # --------------------------------------------------
-    info('generating changelog from "{0}" to "{1}"...'.format(
-        data['tags']['penult'], data['tags']['last']
-    ))
+    info(
+        'generating changelog from "{0}" to "{1}"...'.format(
+            data['tags']['penult'], data['tags']['last']
+        )
+    )
 
     err, logs = git_log(data['tags'])
     if err:
         die('unable to get logs')
 
     logs = logs.split('\n')
-    changelog = generate_changelog({
-        'logs': logs,
-        'url': data['commit_url'],
-    })
+    changelog = generate_changelog(
+        {
+            'logs': logs,
+            'url': data['commit_url'],
+        }
+    )
 
     # --------------------------------------------------
     info('creating release...')
-    err, res = create_release({
-        'git': data,
-        'changelog': changelog,
-        'token': token,
-    })
+    err, res = create_release(
+        {
+            'git': data,
+            'changelog': changelog,
+            'token': token,
+        }
+    )
 
     if err:
         die('release creation failed with HTTP code "{}"'.format(res))
