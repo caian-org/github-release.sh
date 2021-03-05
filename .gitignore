@@ -1,1 +1,6 @@
+# byte-compiled
 __pycache__
+
+# pytest-related
+htmlcov
+.coverage
