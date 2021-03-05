@@ -21,66 +21,74 @@
 import sys
 import json
 import base64
+
 from os import environ
 from subprocess import Popen
 from subprocess import PIPE
+
 from urllib.request import Request
 from urllib.request import urlopen
 from urllib.parse import quote_plus
+
+from typing import Dict
+from typing import Union
+from typing import List
+from typing import Optional
+from typing import Tuple
+
+
+ExecutedCmd = Tuple[Optional[Exception], str]
 
 
 MOCK_SERVER = 'http://localhost:8080'
 TEST_MODE = environ.get('RELEASE_TEST_MODE')
 
 
-def die(msg):
+def die(msg: str) -> None:
     print('\033[31mERROR:\033[0m {}'.format(msg))
     sys.exit(1)
 
 
-def info(msg):
+def info(msg: str) -> None:
     print('\033[32m=>\033[0m {}'.format(msg))
 
 
-def do_cmd(cmdl):
+def do_cmd(cmdl: Union[str, List]) -> ExecutedCmd:
     if not isinstance(cmdl, list):
         cmdl = cmdl.split(' ')
 
     try:
         proc = Popen(cmdl, stdout=PIPE, stderr=PIPE)
-    except Exception as err:
-        return err, None
+    except Exception as exc:
+        return exc, ''
 
     out, err = proc.communicate()
     if err:
-        return err, None
+        return err, ''
 
     return None, out.decode('utf-8').rstrip()
 
 
-def git_remote():
+def git_remote() -> ExecutedCmd:
     return do_cmd('git remote get-url --all origin')
 
 
-def git_tag():
+def git_tag() -> ExecutedCmd:
     return do_cmd('git tag --sort=committerdate')
 
 
-def git_log(tags):
+def git_log(tags: Dict) -> ExecutedCmd:
     return do_cmd('git log --pretty=online {}..{}'.format(tags['penult'], tags['last']))
 
 
-def identify_provider(prefix):
+def identify_provider(prefix: str) -> Optional[str]:
     if prefix == 'github.com':
         return 'github'
-
-    if prefix == 'gitlab.com':
-        return 'gitlab'
 
     return None
 
 
-def generate_changelog(data):
+def generate_changelog(data: Dict) -> str:
     changelog = ''
 
     for _ in data['logs']:
@@ -184,38 +192,12 @@ def create_github_release(data):
     return post_request_with_auth({'url': url, 'payload': payload, 'auth': ('Authorization', auth)})
 
 
-def create_gitlab_release(data):
-    toplevel_domain = 'https://gitlab.com'
-    if TEST_MODE:
-        toplevel_domain = 'http://localhost:8080'
-
-    proj_path = data['git']['commit_url'].split('https://{}.com/'.format(data['git']['provider']))[1]
-
-    proj_path = proj_path[: len(proj_path) - 7]
-    proj_path = quote_plus(proj_path)
-
-    url = '{}/api/v4/projects/{}/releases'.format(toplevel_domain, proj_path)
-
-    payload = ''
-
-    return post_request_with_auth(
-        {'url': url, 'pauload': payload, 'auth': ('PRIVATE-TOKEN', data['token'])}
-    )
-
-
-def create_release(data):
-    if data['git']['provider'] == 'github':
-        return create_github_release(data)
-
-    return create_gitlab_release(data)
-
-
-def main():
+def main() -> None:
     print('\n\033[36m{}\033[0m\n'.format('release.py has started'))
 
-    token = environ.get('RELEASE_AUTH_TOKEN')
+    token = environ.get('RELEASEPY_AUTH_TOKEN')
     if not token:
-        die('token is undefined')
+        die('token is unset')
 
     err, remote = git_remote()
     if err:
@@ -227,7 +209,7 @@ def main():
 
     info('detected provider: {}'.format(data['provider']))
     info(
-        'performing on project "{0}" (on {1}) of user "{2}"'.format(
+        'executing on project "{0}" (with {1}) of user "{2}"'.format(
             data['repo'], data['protocol'], data['user']
         )
     )
@@ -237,14 +219,10 @@ def main():
         die('no tags found')
 
     tags = tags.split('\n')
-
-    data['tags'] = {}
-    data['tags']['last'] = tags[-1]
-
-    if len(tags) == 1:
-        data['tags']['penult'] = 'master'
-    else:
-        data['tags']['penult'] = tags[-2]
+    data['tags'] = {
+        'last': tags[-1],
+        'penult': 'master' if len(tags) == 1 else tags[-2]
+    }
 
     info(
         'generating changelog from "{0}" to "{1}"...'.format(
@@ -256,16 +234,15 @@ def main():
     if err:
         die('unable to get logs')
 
-    logs = logs.split('\n')
     changelog = generate_changelog(
         {
-            'logs': logs,
+            'logs': logs.split('\n'),
             'url': data['commit_url'],
         }
     )
 
     info('creating release...')
-    err, res = create_release(
+    err, res = create_github_release(
         {
             'git': data,
             'changelog': changelog,
