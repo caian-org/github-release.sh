@@ -33,7 +33,7 @@ A KISS solution to easily create project releases.
 
 ## How It Works?
 
-`release.py` is a tool that __generates releases on GitHub and GitLab__ (WIP). It
+`release.py` is a tool that __generates releases on GitHub__. It
 should be used in the context of a CI/CD pipeline, at the delivery stage. The
 pipeline should be declared in a way that, when a new tag is pushed,
 `release.py` is executed after the tests passed, so a new release is
@@ -68,15 +68,15 @@ jobs:
 The tool lists all the tags for the project and compare the changes from the
 last tag to the current one -- If no last tag is detected, it will use the
 master branch as the last reference. It then formats the log to an HTML
-changelog and posts to the GitHub/GitLab API. The username, repository name,
-connection protocol (HTTPS or SSH) and provider (GitHub or Gitlab) detection is
+changelog and posts to the GitHub API. The username, repository name,
+connection protocol (HTTPS or SSH) and provider (GitHub or others) detection is
 based upon the remote URL of the repository.
 
 Via CLI, one or more artifacts can be attached to the release. A release
 message can also be defined (optionally). The API authentication to either
-GitHub or GitLab is made by tokens. The token should be generated for you
-account and exposed inside the pipeline via the `RELEASEPY_AUTH_TOKEN`
-environment variable.
+GitHub is made by tokens. The token should be generated for you account and
+exposed inside the pipeline via the `RELEASEPY_AUTH_TOKEN` environment
+variable.
 
 
 ## Requirements
