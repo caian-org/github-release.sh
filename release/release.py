@@ -102,7 +102,7 @@ def generate_changelog(data: Dict) -> str:
     return '<h1>Changelog</h1><ul>{0}</ul>'.format(changelog)
 
 
-def get_remote_data(remote):
+def get_remote_data(remote: str) -> Dict:
     protocol = 'https'
 
     if 'https://' not in remote:
@@ -150,7 +150,7 @@ def get_remote_data(remote):
     }
 
 
-def post_request_with_auth(data):
+def post_request_with_auth(data: Dict):
     payload = json.dumps(data['payload']).encode('utf-8')
 
     key, val = data['auth']
@@ -163,16 +163,16 @@ def post_request_with_auth(data):
     try:
         res = urlopen(req).read().decode()
 
-    except Exception as e:
-        return e.code, None
+    except Exception as exc:
+        return exc.code, None
 
     return None, res
 
 
-def create_github_release(data):
+def create_github_release(data: Dict):
     toplevel_domain = TEST_MODE or 'https://api.github.com'
 
-    url = '{0}/repos/{1}/{2}/releases'.format(
+    url = '{}/repos/{}/{}/releases'.format(
         toplevel_domain, data['git']['user'], data['git']['repo']
     )
 
