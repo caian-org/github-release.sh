@@ -15,6 +15,7 @@ mypy = "*"
 pytest-cov = "*"
 pytest-sugar = "*"
 pytest-xdist = "*"
+codecov = "*"
 
 [requires]
 python_version = "3.9"
@@ -24,7 +25,8 @@ python_version = "3.9"
 "check:lint" = "pylint --fail-under 9 --rcfile .pylintrc --output-format colorized --verbose release"
 "check:types" = "mypy release"
 "check:style" = "black -l 100 -S --check release"
-"tests" = "pytest --cov release --cov-report term --cov-report html --verbose"
+"tests" = "pytest --cov release --cov-report term --cov-report html --cov-config .coveragerc --verbose"
+"tests:coverage" = "codecov"
 
 [pipenv]
 allow_prereleases = true
