@@ -81,8 +81,7 @@ variable.
 
 ## Requirements
 
-`release.py` only requires Python 3 (versions `3.4`, `3.5`, `3.6`, `3.7` and
-`3.8`).
+`release.py` only requires Python 3 (version `3.6` or higher).
 
 
 ## Usage
